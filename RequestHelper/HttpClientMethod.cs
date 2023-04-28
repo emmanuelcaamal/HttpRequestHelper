@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RequestHelper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -81,6 +82,54 @@ namespace RequestHelper
         /// <exception cref="Exception"></exception>
         public async Task<HttpResponseMessage> ExecuteAsync(HttpMethod method, string resource)
         {
+            return await ProcessRequest(method, resource);
+        }
+
+        /// <summary>
+        /// Ejecuta una solicitud HttpClient
+        /// </summary>
+        /// <typeparam name="T">Representa una clase abstracta al que se desea formatear el contenido de la solicitud</typeparam>
+        /// <param name="method">Indica el tipo de método de la solcitud</param>
+        /// <param name="resource">Indica la dirección del recurso URI</param>
+        /// <returns>Retorna un objeto RequestResponseModel con los datos resultantes de la solicitud</returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<RequestResponseModel<T>> ExecuteAsync<T>(HttpMethod method, string resource)
+            where T : class
+        {
+            try
+            {
+                var result = new RequestResponseModel<T>();
+                var response = await ProcessRequest(method, resource);
+                result.Status = (int)response.StatusCode;
+                result.ReasonPhrase = response.ReasonPhrase;
+
+                if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var content = response.Content.ReadAsStringAsync().Result;
+                    if(!string.IsNullOrEmpty(content))
+                    {
+                        result.Data = JsonSerializer.Deserialize<T>(content.ToString(),
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("HttpClientMethod.ExecuteAsync", ex);
+            }
+        }
+
+        /// <summary>
+        /// Procesa la solicitud Http preconfigurada
+        /// </summary>
+        /// <param name="method">Indica el tipo de método de la solcitud</param>
+        /// <param name="resource">Indica la dirección del recurso URI</param>
+        /// <returns>Retorna un objeto HttpResponseMessage que será procesado del lado del cliente</returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<HttpResponseMessage> ProcessRequest(HttpMethod method, string resource)
+        {
             try
             {
                 //Incluimos los parametros a la URI
@@ -97,8 +146,7 @@ namespace RequestHelper
                     return response;
                 }
 
-
-                if(method == HttpMethod.Put)
+                if (method == HttpMethod.Put)
                 {
                     if (_body == null)
                         throw new ArgumentException("El cuerpo de la solicitud no ha sido definido, use AddBody.");
@@ -107,13 +155,13 @@ namespace RequestHelper
                     return response;
                 }
 
-                if(method == HttpMethod.Delete)
+                if (method == HttpMethod.Delete)
                 {
                     var response = await _httpClient.DeleteAsync(resource);
                     return response;
                 }
 
-                if(method == HttpMethod.Get)
+                if (method == HttpMethod.Get)
                 {
                     var response = await _httpClient.GetAsync(resource);
                     return response;
@@ -123,7 +171,7 @@ namespace RequestHelper
             }
             catch (Exception ex)
             {
-                throw new Exception("HttpClientMethod.Execute", ex);
+                throw new Exception("HttpClientMethod.ProcessRequest", ex);
             }
         }
 

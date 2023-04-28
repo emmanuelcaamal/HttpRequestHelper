@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RequestHelper.Models;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -45,5 +46,15 @@ namespace RequestHelper
         /// <returns>Retorna un objeto HttpResponseMessage que será procesado del lado del cliente</returns>
         /// <exception cref="Exception"></exception>
         Task<HttpResponseMessage> ExecuteAsync(HttpMethod method, string resource);
+
+        /// <summary>
+        /// Ejecuta una solicitud HttpClient
+        /// </summary>
+        /// <typeparam name="T">Representa una clase abstracta al que se desea formatear el contenido de la solicitud</typeparam>
+        /// <param name="method">Indica el tipo de método de la solcitud</param>
+        /// <param name="resource">Indica la dirección del recurso URI</param>
+        /// <returns>Retorna un objeto RequestResponseModel con los datos resultantes de la solicitud</returns>
+        /// <exception cref="Exception"></exception>
+        Task<RequestResponseModel<T>> ExecuteAsync<T>(HttpMethod method, string resource) where T : class;
     }
 }

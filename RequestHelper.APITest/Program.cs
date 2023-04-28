@@ -10,6 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddRequestHelper("PokemonAPI", "https://pokeapi.co/");
+//Para registrar una API al HttpClientFactory
+//builder.Services.RegisterAPI("GoogleAPI", "https://google.com/");
 
 var app = builder.Build();
 

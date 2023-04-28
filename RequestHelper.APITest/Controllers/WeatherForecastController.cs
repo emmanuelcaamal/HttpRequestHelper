@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RequestHelper.APITest.Models;
 
 namespace RequestHelper.APITest.Controllers
 {
@@ -22,13 +23,19 @@ namespace RequestHelper.APITest.Controllers
             //    .AddPathParameter("{clave}", "aegislash")
             //    .ExecuteAsync(HttpMethod.Get, "api/v2/pokemon-species/{clave}").Result;
 
+            //var response = _requestHelper.CreateClient("PokemonAPI")
+            //    .AddQueryParameter("limit", "100")
+            //    .AddQueryParameter("offset", "0")
+            //    .ExecuteAsync(HttpMethod.Get, "api/v2/pokemon").Result;
+
+            //var content = response.Content.ReadAsStringAsync().Result;
+
             var response = _requestHelper.CreateClient("PokemonAPI")
                 .AddQueryParameter("limit", "100")
                 .AddQueryParameter("offset", "0")
-                .ExecuteAsync(HttpMethod.Get, "api/v2/pokemon").Result;
+                .ExecuteAsync<PokemonResponseModel>(HttpMethod.Get, "api/v2/pokemon").Result;
 
-            var content = response.Content.ReadAsStringAsync().Result;
-            return Ok(content);
+            return Ok(response);
         }
     }
 }
